@@ -39,10 +39,8 @@ jobs:
       # 4. Uruchomienie budowania za pomocą Crave
       - name: Run Crave build
         run: |
-          # Przykładowe polecenie uruchamiające budowanie.
-          # Zastąp 'run --no-cache "make -j$(nproc)"' poleceniem odpowiednim dla Twojego projektu.
-          # Może to być np. 'crave run "./build_script.sh"'
-          crave -c $HOME/crave.conf run "./build_script.sh"
+          # Użycie Twojego polecenia budowania
+          crave -c $HOME/crave.conf run --no-cache "./build.sh"
 
       # 5. (Opcjonalnie) Przesłanie artefaktów budowania
       # Jeśli proces budowania generuje pliki (np. obrazy .img, pliki .zip),
@@ -52,6 +50,7 @@ jobs:
         with:
           name: build-output
           path: |
-            path/to/your/artifact1.zip
-            path/to/your/artifact2.img
-            # Podaj ścieżki do plików, które chcesz zachować
+            # WAŻNE: Zastąp poniższe przykładowe ścieżki do plików, które chcesz zachować.
+            # Jeśli nie generujesz żadnych artefaktów, możesz usunąć całą tę sekcję.
+            # build/*.zip
+            # out/target/product/generic/*.img
