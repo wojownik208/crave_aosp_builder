@@ -1,0 +1,57 @@
+# Nazwa Twojego workflow
+name: Build with Crave FOSS
+
+# Definicja, kiedy workflow ma być uruchamiany
+# W tym przypadku: przy każdym push do gałęzi 'main' lub ręcznie
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    # Uruchomienie na najnowszym dostępnym runnerze Ubuntu
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Pobranie kodu źródłowego Twojego repozytorium
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      # 2. Instalacja klienta Crave CLI
+      - name: Install Crave CLI
+        run: |
+          mkdir -p $HOME/bin
+          curl -s https://raw.githubusercontent.com/accupara/crave/master/get_crave.sh | bash -s -- -t $HOME/bin
+          echo "$HOME/bin" >> $GITHUB_PATH
+        # Ten skrypt pobiera i instaluje narzędzie 'crave' w środowisku runnera
+
+      # 3. Utworzenie pliku konfiguracyjnego 'crave.conf' z sekretów
+      - name: Create Crave config file
+        run: |
+          echo '{
+            "username": "${{ secrets.CRAVE_USERNAME }}",
+            "authentication_token": "${{ secrets.CRAVE_TOKEN }}"
+          }' > $HOME/crave.conf
+        # Tworzy plik konfiguracyjny w locie, używając bezpiecznych sekretów
+
+      # 4. Uruchomienie budowania za pomocą Crave
+      - name: Run Crave build
+        run: |
+          # Przykładowe polecenie uruchamiające budowanie.
+          # Zastąp 'run --no-cache "make -j$(nproc)"' poleceniem odpowiednim dla Twojego projektu.
+          # Może to być np. 'crave run "./build_script.sh"'
+          crave -c $HOME/crave.conf run --no-cache "make -j$(nproc)"
+
+      # 5. (Opcjonalnie) Przesłanie artefaktów budowania
+      # Jeśli proces budowania generuje pliki (np. obrazy .img, pliki .zip),
+      # możesz je przesłać jako artefakty workflow.
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: |
+            path/to/your/artifact1.zip
+            path/to/your/artifact2.img
+            # Podaj ścieżki do plików, które chcesz zachować
